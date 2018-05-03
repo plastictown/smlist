@@ -14,54 +14,35 @@
 #define SUCCESS 0
 #define FAIL -1
 
-/*
-* Макрос используется для явного указания компилятору
-* наиболее или наименее вероятной ветки в условии if.
-* Пример: if(unlikely(a<b)){...} говорит компилятору
-* о том, что вероятность выполнения условия маловероятна
-*/
 #ifdef __GNUC__
-#define likely(x)       __builtin_expect((x),1)
-#define unlikely(x)     __builtin_expect((x),0)
+#define likely(x)       __builtin_expect(!!(x),1)
+#define unlikely(x)     __builtin_expect(!!(x),0)
 #else
 #define likely(x)   (x)
 #define unlikely(x) (x)
 #endif // __GNUC__
 
 /*
-* Флаги состояния ноды, можно объединять логическим ИЛИ:
-* int flag|=DATA_NULL|NEXT_NULL; и проверять логическим И:
+* flags using:
+* int flag|=DATA_NULL|NEXT_NULL;
 * if(flag & SIZE_NULL){...}
 */
 enum NodeState
 {
-    NODE_NULL=1, // Указатель на структуру равен NULL
-    NEXT_NULL=2, // Указатель на следующий элемент (next) равен NULL
-    DATA_NULL=4, // Указатель на данные (data) равен NULL
-    SIZE_NULL=8  // Размер данных (data_sz) равен нулю
+    NODE_NULL=1, // NULL pointer
+    NEXT_NULL=2, // next pointer is NULL
+    DATA_NULL=4, // data pointer is NULL
+    SIZE_NULL=8  // zero data size
 };
 
 struct sm_node
 {
-    struct sm_node* next;   // следующий элемент
-    void*           data;   // данные
-    uint16_t        data_sz;// длина данных
+    struct sm_node* next;   // next element
+    void*           data;   // data
+    uint16_t        data_sz;// data len in bytes
 };
 
-/** @brief выделяет память под новый элемент, а также
- * память под данные в новом элементе
- * @param data указатель на данные. данные копируются в новый элемент
- * @param data_sz размер данных в байтах
- * @return указатель на выделенную память либо NULL в случае неудачи
- */
 NODE* sm_list_alloc_node(const void*, uint16_t);
-/**
- * @brief добавляет элемент в конец списка
- * @param
- * @param
- * @return
- *
- */
 int sm_list_push_back(NODE*, NODE*);
 int sm_list_node_state(NODE*);
 int sm_list_empty(const NODE*);
